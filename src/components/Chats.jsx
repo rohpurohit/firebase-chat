@@ -24,15 +24,14 @@ const Chats = ({ author, uid }) => {
   const messagesRef = collection(firestore, "groups");
   const messagesQuery = query(
     messagesRef,
-    where("participants", "array-contains", author)
+    where("showChats", "array-contains", author)
   );
   const { status, data: chats } = useFirestoreCollectionData(messagesQuery);
   const [openChat, setOpenChat] = useState(false);
   const [docId, setDocId] = useState("");
   const [localUsers, setUsers] = useState([]);
   const [startChat, setStartChat] = useState(false);
-
-  const names = localUsers.map(({ name }) => name);
+  const names = localUsers.map(({ name }) => name.split(" ")[0]);
   const ids = localUsers.map(({ id }) => id);
 
   const createGroupAndStartChat = async () => {
@@ -56,6 +55,7 @@ const Chats = ({ author, uid }) => {
       uid: sumOfIds,
       createdAt: serverTimestamp(),
       participants: participantsArr,
+      showChats: names,
       length: names.length,
     });
     // console.log("newDoc", newDoc);
