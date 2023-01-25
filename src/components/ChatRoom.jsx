@@ -31,17 +31,6 @@ const ChatRoom = ({ docId, author, uid }) => {
   const sendMessage = async (e) => {
     e.preventDefault();
     const msgCount = docData?.messageCount ? docData?.messageCount + 1 : 1;
-    const isParticipant = docData?.participants?.find(
-      ({ name }) => name === author
-    );
-    if (!isParticipant) {
-      await updateDoc(docRef, {
-        participants: [
-          ...docData.participants,
-          { name: author, readCount: msgCount },
-        ],
-      });
-    }
     try {
       await addDoc(collection(firestore, "groups", docId, "messages"), {
         text: formValue,
@@ -51,6 +40,8 @@ const ChatRoom = ({ docId, author, uid }) => {
       });
       await updateDoc(docRef, {
         messageCount: msgCount,
+        // this is the last message timestamp
+        latestMessage: serverTimestamp(),
       });
     } catch (error) {
       console.error("add message error", error);

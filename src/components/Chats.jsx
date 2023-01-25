@@ -72,26 +72,14 @@ const Chats = ({ author, uid }) => {
   const goBackToChats = async () => {
     const docRef = doc(firestore, "groups", docId);
     const docData = await (await getDoc(docRef)).data();
-    const isParticipant = docData.participants.find(
-      ({ name }) => name === author
-    );
-
-    let participants = [];
-    if (!isParticipant) {
-      participants = [
-        ...docData.participants,
-        { name: author, readCount: docData?.messageCount },
-      ];
-    } else {
-      const tempParticipants = [...docData.participants];
-      const index = tempParticipants.findIndex(({ name }) => name === author);
-      if (index !== -1) {
-        tempParticipants[index].readCount = docData.messageCount;
-      }
-      participants = tempParticipants;
+    const tempParticipants = [...docData.participants];
+    const index = tempParticipants.findIndex(({ name }) => name === author);
+    if (index !== -1) {
+      tempParticipants[index].readCount = docData.messageCount;
+      // tempParticipants[index].lastSeen = serverTimestamp();
     }
     await updateDoc(docRef, {
-      participants,
+      participants: tempParticipants,
     });
     setOpenChat(false);
   };
@@ -104,27 +92,53 @@ const Chats = ({ author, uid }) => {
             <>
               {chats &&
                 chats.map(
-                  ({ name, NO_ID_FIELD, participants, messageCount = 0 }) => {
+                  ({
+                    name,
+                    NO_ID_FIELD,
+                    participants,
+                    messageCount = 0,
+                    latestMessage,
+                  }) => {
                     let unread = false;
                     const currentUser = participants.find(
                       ({ name }) => name.split(" ")[0] === author
                     );
+                    let unreadCount = 0;
                     if (currentUser) {
-                      if (currentUser.readCount !== messageCount) unread = true;
+                      if (currentUser.lastSeen > latestMessage) unread = true;
+                      if (messageCount > currentUser.readCount)
+                        unreadCount = messageCount - currentUser.readCount;
                     }
                     return (
-                      <div
-                        style={{
-                          backgroundColor: unread ? "orange" : "white",
-                          color: "black",
-                          cursor: "pointer",
-                          margin: "1em",
-                        }}
-                        key={name}
-                        onClick={() => openChatOnClick(NO_ID_FIELD)}
-                      >
-                        {name}
-                      </div>
+                      <>
+                        <div
+                          style={{
+                            backgroundColor: unread ? "orange" : "white",
+                            color: "black",
+                            cursor: "pointer",
+                            margin: "1em",
+                            position: "relative",
+                          }}
+                          key={name}
+                          onClick={() => openChatOnClick(NO_ID_FIELD)}
+                        >
+                          {name}
+                          <div
+                            style={{
+                              backgroundColor: "#fa3e3e",
+                              borderRadius: "50%",
+                              color: "yellow",
+                              padding: "0px 5px",
+                              fontSize: "10px",
+                              position: "absolute",
+                              top: "0",
+                              right: "0",
+                            }}
+                          >
+                            {unreadCount > 0 && unreadCount}
+                          </div>
+                        </div>
+                      </>
                     );
                   }
                 )}

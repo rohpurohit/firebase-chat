@@ -6,6 +6,17 @@ import { FirebaseAppProvider } from "reactfire";
 import App from "./App";
 import "./index.css";
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("../firebase-messaging-sw.js")
+    .then(function (registration) {
+      console.log("Registration successful, scope is:", registration.scope);
+    })
+    .catch(function (err) {
+      console.log("Service worker registration failed, error:", err);
+    });
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyADRsMXqv8T97F0HLIBe-7Cex9GrqsVjsQ",
   authDomain: "fir-chat-8efa3.firebaseapp.com",
