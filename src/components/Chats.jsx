@@ -8,19 +8,34 @@ import {
   getDoc,
   updateDoc,
   where,
+  setDoc,
 } from "firebase/firestore";
 import React, { useState } from "react";
 import {
+  useDatabase,
+  useDatabaseObjectData,
+  useFirebaseApp,
   useFirestore,
   useFirestoreCollectionData,
   useFirestoreDocData,
 } from "reactfire";
-import { docExists } from "../constants";
+import { docExists, users } from "../constants";
 import ChatRoom from "./ChatRoom";
 import NewChat from "./NewChat";
+import {
+  getDatabase,
+  onDisconnect,
+  onValue,
+  ref,
+  set,
+} from "firebase/database";
+import { useEffect } from "react";
+import { getMessaging, onMessage } from "firebase/messaging";
 
 const Chats = ({ author, uid }) => {
+  const [isOnline, setIsOnline] = useState();
   const firestore = useFirestore();
+  const database = useDatabase();
   const messagesRef = collection(firestore, "groups");
   const messagesQuery = query(
     messagesRef,
@@ -33,6 +48,45 @@ const Chats = ({ author, uid }) => {
   const [startChat, setStartChat] = useState(false);
   const names = localUsers.map(({ name }) => name.split(" ")[0]);
   const ids = localUsers.map(({ id }) => id);
+  const statusRef = ref(database, "status");
+  const userRef = ref(database, "status/" + uid);
+  const databaseOn = ref(database, "status/" + uid + "online");
+  const { dataStatus, data: onlineUsers } = useDatabaseObjectData(statusRef);
+
+  const isOfflineForDatabase = {
+    online: false,
+    lastSeen: serverTimestamp(),
+  };
+
+  const isOnlineForDatabase = {
+    online: true,
+    lastSeen: new Date().getTime(),
+  };
+  useEffect(() => {
+    const createUser = async () => {
+      set(userRef, isOnlineForDatabase);
+    };
+
+    const connectedRef = ref(database, ".info/connected");
+    const lastOnlineRef = ref(database, `status/${uid}/lastSeen`);
+    const onlineRef = ref(database, `status/${uid}/online`);
+    onValue(connectedRef, (snap) => {
+      if (snap.val() === true) {
+        // console.log("connected");
+        onDisconnect(lastOnlineRef).set(new Date().getTime());
+        onDisconnect(onlineRef).set(false);
+      } else {
+        // console.log("not connected");
+      }
+    });
+
+    onMessage((payload) => {
+      console.log("Message received. ", payload.notification.body);
+      this.context.setToastMessage("info", payload.notification.body);
+    });
+
+    createUser();
+  }, []);
 
   const createGroupAndStartChat = async () => {
     setUsers([]);
@@ -164,7 +218,12 @@ const Chats = ({ author, uid }) => {
           <button onClick={goBackToChats} className="sign-out">
             Go back
           </button>
-          <ChatRoom docId={docId} uid={uid} author={author} />
+          <ChatRoom
+            onlineUsers={onlineUsers}
+            docId={docId}
+            uid={uid}
+            author={author}
+          />
         </>
       )}
     </>

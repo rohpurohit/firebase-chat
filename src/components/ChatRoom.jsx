@@ -17,7 +17,7 @@ import {
   useUser,
 } from "reactfire";
 
-const ChatRoom = ({ docId, author, uid }) => {
+const ChatRoom = ({ docId, author, uid, onlineUsers }) => {
   const [openChat, setOpenChat] = useState(false);
   const [formValue, setFormValue] = useState("");
   const dummy = useRef();
@@ -67,7 +67,10 @@ const ChatRoom = ({ docId, author, uid }) => {
                     color: "white",
                   }}
                 >
-                  {author}
+                  {author}{" "}
+                  {onlineUsers[msgUid] && onlineUsers[msgUid].online
+                    ? "(online)"
+                    : "(away)"}
                 </div>
                 <div className={`message ${messageClass}`}>
                   <p>{text}</p>

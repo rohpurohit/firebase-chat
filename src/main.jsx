@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { initializeApp } from "firebase/app";
-import { FirebaseAppProvider } from "reactfire";
+import { DatabaseProvider, FirebaseAppProvider } from "reactfire";
 
 import App from "./App";
 import "./index.css";
+import { getDatabase } from "firebase/database";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

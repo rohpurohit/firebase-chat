@@ -16,7 +16,7 @@ import Chats from "./Chats";
 
 const Users = () => {
   const { data: user } = useUser();
-  console.log("userData", user);
+  // console.log("userData", user);
   // const firestore = useFirestore();
   // const groupsRef = collection(firestore, "groups");
   // const allDocs = query(groupsRef);

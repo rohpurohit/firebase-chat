@@ -8,6 +8,7 @@ import { getFirestore } from "firebase/firestore";
 import SignIn from "./components/SignIn";
 import {
   AuthProvider,
+  DatabaseProvider,
   FirebaseAppProvider,
   FirestoreProvider,
   useAuth,
@@ -19,6 +20,7 @@ import Users from "./components/Users";
 import Chats from "./components/Chats";
 import Home from "./components/Home";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { getDatabase } from "firebase/database";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,7 @@ function App() {
   const app = useFirebaseApp();
   const auth = getAuth(app);
   const messaging = getMessaging();
+  const database = getDatabase(app);
 
   useEffect(() => {
     messaging &&
@@ -65,11 +68,13 @@ function App() {
   }, [messaging]);
 
   return (
-    <FirestoreProvider sdk={firestoreInstance}>
-      <AuthProvider sdk={auth}>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </FirestoreProvider>
+    <DatabaseProvider sdk={database}>
+      <FirestoreProvider sdk={firestoreInstance}>
+        <AuthProvider sdk={auth}>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </FirestoreProvider>
+    </DatabaseProvider>
   );
 }
 
