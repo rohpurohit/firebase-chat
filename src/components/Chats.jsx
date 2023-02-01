@@ -46,7 +46,8 @@ const Chats = ({ author, uid }) => {
   const [docId, setDocId] = useState("");
   const [localUsers, setUsers] = useState([]);
   const [startChat, setStartChat] = useState(false);
-  const names = localUsers.map(({ name }) => name.split(" ")[0]);
+  const names = localUsers.map(({ uid }) => uid);
+  const chatNames = localUsers.map(({ name }) => name);
   const ids = localUsers.map(({ id }) => id);
   const statusRef = ref(database, "status");
   const userRef = ref(database, "status/" + uid);
@@ -100,12 +101,12 @@ const Chats = ({ author, uid }) => {
       return;
     }
     const participantsArr = [];
-    names.forEach((name) => {
+    localUsers.forEach(({ name }) => {
       const obj = { name: name.split(" ")[0], readCount: 0 };
       participantsArr.push(obj);
     });
     const newDoc = await addDoc(collection(firestore, "groups"), {
-      name: names.join(),
+      name: chatNames.join(),
       uid: sumOfIds,
       createdAt: serverTimestamp(),
       participants: participantsArr,

@@ -2,12 +2,14 @@ importScripts("https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js");
 
 firebase.initializeApp({
-  apiKey: "AIzaSyADRsMXqv8T97F0HLIBe-7Cex9GrqsVjsQ",
-  authDomain: "fir-chat-8efa3.firebaseapp.com",
-  projectId: "fir-chat-8efa3",
-  storageBucket: "fir-chat-8efa3.appspot.com",
-  messagingSenderId: "349687834948",
-  appId: "1:349687834948:web:a4d6e3b1bd769addc34f11",
+  apiKey: "AIzaSyAccOdWqKGOz3AwwTM-8kL3TEEoZ2Wm-74",
+  authDomain: "huddl-chat-test.firebaseapp.com",
+  databaseURL: "https://huddl-chat-test-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "huddl-chat-test",
+  storageBucket: "huddl-chat-test.appspot.com",
+  messagingSenderId: "616259801931",
+  appId: "1:616259801931:web:748b3b60c3abad87fc0ece",
+  measurementId: "G-811SEKE85N"
 });
 
 // Retrieve an instance of Firebase Messaging so that it can handle background
