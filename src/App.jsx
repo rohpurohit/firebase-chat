@@ -4,7 +4,7 @@ import { getMessaging, getToken } from "firebase/messaging";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
 import useGetAllUsers from "./hooks/useGetAllUsers";
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import SignIn from "./components/SignIn";
 import {
   AuthProvider,
@@ -40,7 +40,6 @@ function App() {
   const firestoreInstance = getFirestore(useFirebaseApp());
   const app = useFirebaseApp();
   const auth = getAuth(app);
-  const messaging = getMessaging();
   const database = getDatabase(app);
 
   return (

@@ -32,14 +32,14 @@ import {
 import { useEffect } from "react";
 import { getMessaging, onMessage } from "firebase/messaging";
 
-const Chats = ({ author, uid }) => {
+const Chats = ({ author, uid, token }) => {
   const [isOnline, setIsOnline] = useState();
   const firestore = useFirestore();
   const database = useDatabase();
   const messagesRef = collection(firestore, "groups");
   const messagesQuery = query(
     messagesRef,
-    where("showChats", "array-contains", author)
+    where("showChats", "array-contains", uid)
   );
   const { status, data: chats } = useFirestoreCollectionData(messagesQuery);
   const [openChat, setOpenChat] = useState(false);
@@ -48,46 +48,9 @@ const Chats = ({ author, uid }) => {
   const [startChat, setStartChat] = useState(false);
   const names = localUsers.map(({ uid }) => uid);
   const chatNames = localUsers.map(({ name }) => name);
-  const ids = localUsers.map(({ id }) => id);
+  const ids = localUsers.map(({ uid }) => uid);
   const statusRef = ref(database, "status");
-  const userRef = ref(database, "status/" + uid);
-  const databaseOn = ref(database, "status/" + uid + "online");
   const { dataStatus, data: onlineUsers } = useDatabaseObjectData(statusRef);
-
-  const isOfflineForDatabase = {
-    online: false,
-    lastSeen: serverTimestamp(),
-  };
-
-  const isOnlineForDatabase = {
-    online: true,
-    lastSeen: new Date().getTime(),
-  };
-  useEffect(() => {
-    const createUser = async () => {
-      set(userRef, isOnlineForDatabase);
-    };
-
-    const connectedRef = ref(database, ".info/connected");
-    const lastOnlineRef = ref(database, `status/${uid}/lastSeen`);
-    const onlineRef = ref(database, `status/${uid}/online`);
-    onValue(connectedRef, (snap) => {
-      if (snap.val() === true) {
-        // console.log("connected");
-        onDisconnect(lastOnlineRef).set(new Date().getTime());
-        onDisconnect(onlineRef).set(false);
-      } else {
-        // console.log("not connected");
-      }
-    });
-
-    onMessage((payload) => {
-      console.log("Message received. ", payload.notification.body);
-      this.context.setToastMessage("info", payload.notification.body);
-    });
-
-    createUser();
-  }, []);
 
   const createGroupAndStartChat = async () => {
     setUsers([]);
@@ -101,10 +64,16 @@ const Chats = ({ author, uid }) => {
       return;
     }
     const participantsArr = [];
-    localUsers.forEach(({ name }) => {
-      const obj = { name: name.split(" ")[0], readCount: 0 };
+    localUsers.forEach(({ name, uid, token }) => {
+      const obj = {
+        name: name.split(" ")[0],
+        readCount: 0,
+        uid,
+        notificationToken: token,
+      };
       participantsArr.push(obj);
     });
+    console.log(participantsArr);
     const newDoc = await addDoc(collection(firestore, "groups"), {
       name: chatNames.join(),
       uid: sumOfIds,

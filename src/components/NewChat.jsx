@@ -11,7 +11,7 @@ const NewChat = ({ localUsers, setUsers, createGroupAndStartChat }) => {
   const addUser = (user) => {
     const prevUsers = [...localUsers];
     prevUsers.push(user);
-    console.log("prevUser", user);
+    // console.log("prevUser", user);
     setUsers(prevUsers);
   };
   return (
